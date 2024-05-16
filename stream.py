@@ -66,7 +66,7 @@ if page == 'Other models':
     if st.button('Click to import result of other models',help='It will take 5-15 minutes') == True :
         button_status = True
             # 스피너 표시
-        with st.spinner('Running the raw data collecting process...'):
+        with st.spinner('Running the process...'):
             # 파일 import하는 함수 호출
             import other 
             time.sleep(2)  # 예시로 2초 대기
