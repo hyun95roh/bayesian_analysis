@@ -47,7 +47,7 @@ grid_search = GridSearchCV(tree_clf, param_grid, cv= cv)
 grid_search.fit(X,y) 
 
 best_alpha = grid_search.best_params_['ccp_alpha']  
-best_depth = grid_search.best_params_['max_depth']
+best_depth = grid_search.best_params_['max_depth'] 
 print("Best Cost-complexity pruning alpha:", best_alpha) 
 
 # Fit a decision tree clf with ccp 
@@ -60,7 +60,7 @@ importances = tree_clf.feature_importances_
 # Get indicies of top two features 
 top_indicies = np.argsort(importances)[-2:] 
 column_names = X.columns 
-top_features_name = [ column_names[1:][i] for i in top_indicies]
+top_features_name = [ column_names[0:][i] for i in top_indicies]
 X_top = X.iloc[:, top_indicies] 
 
 
