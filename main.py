@@ -161,7 +161,7 @@ dummy_X[:, top_indicies] = np.c_[ xx.ravel(), yy.ravel() ]
 Z = tree_clf.predict( dummy_X )  
 Z = Z.reshape(xx.shape) 
 
-# Create the 3D surface plot
+# Create the 3D surface plot  
 fig4 = go.Figure(data=[go.Surface(x=xx, y=yy, z=Z, colorscale='Viridis')])
 
 # Set the layout and axis labels
