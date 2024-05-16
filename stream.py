@@ -45,11 +45,14 @@ if page == 'Tree model':
         cv: StratifiedKFold 
     
     '''
+        st.markdown(f'Best cost-complexity alpha: {main.best_alpha}')
+        st.markdown(f'Best max-depth: {main.best_depth}') 
 
     
-    st.markdown(f'Best cost-complexity alpha: {main.best_alpha}')
-    st.markdown(f'Best max-depth: {main.best_depth}') 
-
+    
+    '''\n
+    Here are interactive 3D-graphs for you. 
+    '''
     st.write(main.fig)
 
     st.write(main.fig2)
