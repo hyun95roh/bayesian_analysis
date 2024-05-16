@@ -8,7 +8,7 @@ st.sidebar.title('Table of Content')
 
 # 페이지 선택
 page = st.sidebar.radio('Choose the page to read.',
-                        ('Data', 'Tree model'))
+                        ('Data', 'Tree model','Other models'))
 
 if page == 'Data':
     st.markdown('# Lung Cancer Classification')
@@ -58,7 +58,23 @@ if page == 'Tree model':
 
     st.write(main.fig3)
 
-    
+
+if page == 'other models':
+    with st.expander('Random Forest', expanded=True): 
+        st.markdown(f'Best parameters: {main.best_param_rf}') 
+        st.markdown(f'Train accuracy: {main.Train_acc_rf}') 
+        st.markdown(f'Test accuracy: {main.Test_acc_rf}')  
+        
+    with st.expander('XGBoost', expanded=True): 
+        st.markdown(f'Best parameters: {main.best_param_xgb}') 
+        st.markdown(f'Train accuracy: {main.Train_acc_xgb}') 
+        st.markdown(f'Test accuracy: {main.Test_acc_xgb}') 
+
+    with st.expander('SVC', expanded=True): 
+        st.markdown(f'Best parameters: {main.best_param_svc}') 
+        st.markdown(f'Train accuracy: {main.Train_acc_svc}') 
+        st.markdown(f'Test accuracy: {main.Test_acc_svc}') 
+
 
     
 
