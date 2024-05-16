@@ -74,27 +74,29 @@ if page == 'Other models':
         # 스피너 종료
         st.success('Thank you for waiting. Process Completed!')
 
+            # 결과물 가져오기 
+        with st.expander('Random Forest', expanded=True): 
+            st.markdown(f'Best parameters: {other.best_param_rf}') 
+            st.markdown(f'Train accuracy: {other.Train_acc_rf}') 
+            st.markdown(f'Test accuracy: {other.Test_acc_rf}')  
+        
+        with st.expander('XGBoost', expanded=True): 
+            st.markdown(f'Best parameters: {other.best_param_xgb}') 
+            st.markdown(f'Train accuracy: {other.Train_acc_xgb}') 
+            st.markdown(f'Test accuracy: {other.Test_acc_xgb}') 
+
+        with st.expander('SVC', expanded=True): 
+            st.markdown(f'Best parameters: {other.best_param_svc}') 
+            st.markdown(f'Train accuracy: {other.Train_acc_svc}') 
+            st.markdown(f'Test accuracy: {other.Test_acc_svc}') 
+
 
     if button_status == True: 
         st.button('Click to import result of other models',help='It will take 5-15 minutes', disabled=False) 
 
     st.write('The process may take 5-15 mintues.') 
     st.markdown("---")
-    # 결과물 가져오기 
-    with st.expander('Random Forest', expanded=True): 
-        st.markdown(f'Best parameters: {other.best_param_rf}') 
-        st.markdown(f'Train accuracy: {other.Train_acc_rf}') 
-        st.markdown(f'Test accuracy: {other.Test_acc_rf}')  
-    
-    with st.expander('XGBoost', expanded=True): 
-        st.markdown(f'Best parameters: {other.best_param_xgb}') 
-        st.markdown(f'Train accuracy: {other.Train_acc_xgb}') 
-        st.markdown(f'Test accuracy: {other.Test_acc_xgb}') 
 
-    with st.expander('SVC', expanded=True): 
-        st.markdown(f'Best parameters: {other.best_param_svc}') 
-        st.markdown(f'Train accuracy: {other.Train_acc_svc}') 
-        st.markdown(f'Test accuracy: {other.Test_acc_svc}') 
 
 
 
