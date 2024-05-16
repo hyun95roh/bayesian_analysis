@@ -1,0 +1,12 @@
+streamlit
+pandas
+numpy
+plotly
+scikit-learn
+requests
+ISLP
+xgboost 
+mpl_toolkits 
+ucimlrepo 
+seaborn 
+matplotlib

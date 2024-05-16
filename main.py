@@ -23,19 +23,17 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 from xgboost import XGBClassifier 
 from mpl_toolkits.mplot3d import Axes3D
-
-# Load the Lung Cancer dataset
-url = "https://archive.ics.uci.edu/ml/machine-learning-databases/lung-cancer/lung-cancer.data"
-column_names = ['diagnosis', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12', 'f13', 'f14', 'f15']
-df = pd.read_csv(url, names=column_names)
-
-# Drop rows with missing values
-df.replace('?', np.nan, inplace=True)
-df.dropna(inplace=True)
-
-# Separate features and target variable
-X = df.drop('diagnosis', axis=1) 
-y = df['diagnosis'] 
+from ucimlrepo import fetch_ucirepo 
+  
+# fetch dataset 
+lung_cancer = fetch_ucirepo(id=62) 
+  
+# data (as pandas dataframes) 
+X = lung_cancer.data.features 
+y = lung_cancer.data.targets 
+df = pd.concat([X,y],axis=1).dropna() 
+X = df.iloc[:,:-1]
+y = df.iloc[:,-1]
 
 # Classification Tree: 
 # Decision Tree Classifier (criterion='gini') 
@@ -60,9 +58,11 @@ tree_clf.fit(X, y)
 importances = tree_clf.feature_importances_ 
 
 # Get indicies of top two features 
-top_indicies = np.argsort(importances)[-2:]
+top_indicies = np.argsort(importances)[-2:] 
+column_names = X.columns 
 top_features_name = [ column_names[1:][i] for i in top_indicies]
 X_top = X.iloc[:, top_indicies] 
+
 
 # Plot training points
 fig = figure(figsize=(8,8))
@@ -70,24 +70,25 @@ ax = fig.add_subplot(111, projection='3d')
 ax.view_init(elev=90, azim=60)
 ax.scatter(X_top.iloc[:, 0], X_top.iloc[:, 1], y, c=y, cmap='viridis', label='Data') 
 
-
-# Plot the decision surface 
+# Set meshgrid of the decision surface 
 x_min, x_max = X_top.iloc[:, 0].min() -1, X_top.iloc[:, 0].max() +1 
 y_min, y_max = X_top.iloc[:, 1].min() -1, X_top.iloc[:, 1].max() +1  
 xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1), np.arange(y_min, y_max, 0.1))  
-
-# Create Dummy data for reduced feature space 
-dummy_X = np.zeros((xx.ravel().shape[0], 15))  
-dummy_X[:, top_indicies] = np.c_[ xx.ravel(), yy.ravel() ] 
-
-# Predict the output for each point in the mesh grid 
-Z = tree_clf.predict( dummy_X )  
-Z = Z.reshape(xx.shape) 
 
 # Using plotly 
 # Assuming X_top and y are your data frames
 fig = px.scatter_3d(X_top, x=X_top.columns[0], y=X_top.columns[1], z=y, color=y)
-fig.show()
+fig1 = px.scatter_3d(X_top, x=X_top.columns[0], y=X_top.columns[1], z=y, color=y)
+# Set the layout and axis labels
+fig.update_layout(
+    title='3D Scatter plot of the Data respect to top two features',
+    scene=dict(
+        xaxis_title=top_features_name[0],
+        yaxis_title=top_features_name[1],
+        zaxis_title='Grounded True value'
+    ) 
+) 
+#fig.show()
 
 # Plot the decision surface 
 x_min, x_max = X_top.iloc[:, 0].min() -1, X_top.iloc[:, 0].max() +1 
@@ -95,7 +96,7 @@ y_min, y_max = X_top.iloc[:, 1].min() -1, X_top.iloc[:, 1].max() +1
 xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1), np.arange(y_min, y_max, 0.1))  
 
 # Create Dummy data for reduced feature space 
-dummy_X = np.zeros((xx.ravel().shape[0], 15))  
+dummy_X = np.zeros((xx.ravel().shape[0], len(X.columns)))  
 dummy_X[:, top_indicies] = np.c_[ xx.ravel(), yy.ravel() ] 
 
 # Predict the output for each point in the mesh grid 
@@ -115,7 +116,6 @@ fig2.update_layout(
     ) 
 )  
 
-fig2.show() 
-
-
+# Add the surface plot to the existing scatter plot
+fig3 = fig1.add_trace(fig2.data[0])
 
