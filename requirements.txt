@@ -1,7 +1,8 @@
 streamlit
 pandas
 numpy
-plotly
+plotly.express
+plotly.graph_objects
 scikit-learn
 requests
 ISLP
