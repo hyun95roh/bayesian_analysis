@@ -45,11 +45,10 @@ if page == 'Tree model':
         cv: StratifiedKFold 
     
     '''
+        st.markdown('When using "scoring=accuracy":')
         st.markdown(f'Best cost-complexity alpha: {main.best_alpha}')
         st.markdown(f'Best max-depth: {main.best_depth}') 
-
-    
-    
+        st.markdown(f'Best accuracy score: {main.best_score}')    
     '''\n
     Here are interactive 3D-graphs for you. 
     '''
@@ -59,6 +58,14 @@ if page == 'Tree model':
 
     st.write(main.fig3)
 
+    
+    st.markdown('When using "scoring= weighted Gini index":')
+    st.markdown(f'Best cost-complexity alpha: {main.best_alpha}')
+    st.markdown(f'Best max-depth: {main.best_depth}') 
+    st.markdown(f'Best accuracy score: {main.best_score}')    
+    
+    st.write(main.fig4) 
+    
 
 
 
