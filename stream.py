@@ -64,7 +64,6 @@ if page == 'Tree model':
     st.markdown(f'Best max-depth: {main.best_depth}') 
     st.markdown(f'Best accuracy score: {main.best_score}')    
     
-    st.write(main.fig4) 
     
 
 
