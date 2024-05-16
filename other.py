@@ -19,9 +19,21 @@ from sklearn.feature_selection import RFECV
 from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 from xgboost import XGBClassifier 
+from ucimlrepo import fetch_ucirepo 
 
 ############################################
 # Other models : RF/XGB/SVC
+# fetch dataset 
+lung_cancer = fetch_ucirepo(id=62) 
+  
+# data (as pandas dataframes) 
+X = lung_cancer.data.features 
+y = lung_cancer.data.targets 
+df = pd.concat([X,y],axis=1).dropna() 
+X = df.iloc[:,:-1]
+y = df.iloc[:,-1]
+
+
 # Convert target variable to integers starting from 0
 label_encoder = LabelEncoder()  
 y = label_encoder.fit_transform(y)  
