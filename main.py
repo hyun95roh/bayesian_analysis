@@ -16,7 +16,7 @@ from sklearn.linear_model import (LinearRegression ,RidgeCV ,LassoCV )
 from sklearn.decomposition import PCA 
 from sklearn.pipeline import make_pipeline 
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import accuracy_score,mean_squared_error, mean_absolute_error
+from sklearn.metrics import accuracy_score,mean_squared_error, mean_absolute_error,make_scorer
 from sklearn.feature_selection import RFECV  
 
 from sklearn.svm import SVC
