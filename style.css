@@ -1,0 +1,318 @@
+/*
+- HTML : defines content and structure of webpage, like the skeleton of human body.
+- CSS : it controls appearance and layout of a webpage, like clothing and accessories.
+- JavaScript: Allows dynamic behavior and interactivity to a webpage, like muscle and nerve system.*/
+
+/************************************************************/
+/* Base */
+body {
+  margin: 0;
+  font-family: 'Helvetica Neue', sans-serif;
+  background: #dcd9d9f0;
+  color: #161414;
+}
+
+
+.zen-title {
+  font-size: 4rem;
+  text-align: center;
+  margin-top: 25vh;
+  animation: fadeOut 2s ease-in-out 3s forwards;
+  color: #060606cd;
+  margin-bottom: 1rem;  
+}
+
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 2s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; display: none; }
+}
+
+.hidden {
+  display: none;
+}
+/************************************************************/
+#main {
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 1.5s ease-in-out forwards;
+}
+
+header {
+  background-color: #0e0d0df1;
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 0px solid #ddd;
+  color: #ffffff;
+}
+
+.container {
+  display: flex;
+  height: calc(100vh - 80px);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #ffffff;
+  border-right: 1px solid #c1bc28;
+  border-style:groove;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  padding: 1rem;
+  cursor: pointer;
+  border-bottom: 0px solid #232322f0;
+  border-left: 4.5px solid #baba59f0;
+  transition: background 0.3s;
+}
+
+.sidebar li:hover {
+  background-color: #050505;
+  font-palette: "bold";
+  color: #ffffff;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.right-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 280px;
+  background-color: #f5f5f5;
+  border-left: 1px solid #ccc;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+  transition: transform 0.4s ease;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.right-sidebar.collapsed {
+  transform: translateX(100%);
+}
+
+.toggle-button {
+  position: absolute;
+  left: -25px;
+  top: 20px;
+  background-color: #ddd;
+  width: 24px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 6px 0 0 6px;
+  font-size: 18px;
+  user-select: none;
+}
+
+.right-content {
+  overflow-y: auto;
+  margin-top: 2rem;
+}
+
+
+
+/*******************************************************/
+/* Tab */
+.content {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 1s ease-in-out forwards;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.compartment {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.compartment img {
+  width: clamp(60px, 20vw, 360px); /* minimum px, scales with screen, max px */
+  height: auto;
+  flex-shrink: 0;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.text {
+  flex: 1;
+  min-width: 200px;
+}
+
+.comp-title {
+  font-size: clamp(1.2rem, 2vw, 2rem);
+  margin: 0 0 0.5rem 0;
+}
+
+.comp-desc {
+  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+  margin: 0;
+  color: #555;
+}
+
+.comp-title a {
+  text-decoration: none;
+  color: inherit; /* inherits tab color */
+  transition: color 0.3s ease;
+}
+
+.comp-title a:hover {
+  color: #b7bd18; /* subtle highlight */
+}
+
+
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+/* Optional: color palette */
+:root {
+  --main-bg: #ffffff;
+  --highlight: #4285f4;
+  --text-color: #333;
+}
+
+.intro-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeOutIntro 1s ease-in-out 4s forwards;
+}
+
+
+#hash-bar {
+  font-family: monospace;
+  font-size: 1.5rem;
+  letter-spacing: 0.3rem;
+  color: #333;
+}
+
+@keyframes fadeOutIntro {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+.intro-tab {
+  color: #000101; /* blue */
+}
+
+.analysis-tab {
+  color: #000000; /* blue */
+}
+
+.monitor-tab {
+  color: #000000; /* green */
+}
+
+.challenges-tab {
+  color: #000000; /* red */
+}
+
+.analysis-template {
+  padding: 1rem;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.bullet-summary li {
+  margin-bottom: 0.5rem;
+}
+
+.diagram {
+  max-width: 100%;
+  margin: 1rem 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.data-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: monospace;
+}
+
+.data-table th, .data-table td {
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.data-table thead {
+  background-color: #f0f0f0;
+}
+
+
+pre {
+  background-color: #f6f8fa;
+  padding: 1rem;
+  overflow-x: auto;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+
+
+
+/************************************************************/
+/* Animation */
+
+
