@@ -4,4 +4,7 @@ numpy==1.26.4
 pymc==5.23.0
 arviz==0.21.0
 plotly==5.22.0
-ucimlrepo==0.0.5  
+ucimlrepo==0.0.5
+scikit-learn==1.5.1
+scipy==1.14.1 
+xarray==2024.6.0
