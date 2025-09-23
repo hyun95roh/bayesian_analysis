@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scenario 2 • Customer Lifetime Value | Bayesian Analysis Portfolio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Scenario 2: Customer Lifetime Value in Shopping</h1>
+    <p>A retailer forecasts customer churn using Bayesian survival analysis to optimize retention campaigns.</p>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="scenario1.html">Stock Volatility</a></li>
+      <li><a href="scenario2.html">Customer Lifetime Value</a></li>
+      <li><a href="scenario3.html">Churn Prediction</a></li>
+      <li><a href="scenario4.html">Music Recommendations</a></li>
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="https://github.com/hyun95roh/bayesian_analysis" target="_blank">GitHub Repo</a></li>
+      <li><a href="https://ht-roh.notion.site/The-Beauty-of-Bayesian-Approach-275a6f5aefbe80b0b6d9f478403ab753?source=copy_link" target="_blank">Notion Post</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <section>
+      <h2>Analysis Code</h2>
+      <pre><code class="language-python">
+import pandas as pd
+import pymc as pm
+import arviz as az
+
+url = "https://raw.githubusercontent.com/RameenShahid/Online-Retail-Dataset-UCI/master/data.csv"
+df = pd.read_csv(url, encoding='ISO-8859-1')
+df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
+df = df.dropna(subset=['CustomerID']).query('Quantity > 0')
+# Compute time-to-next-purchase
+df['NextPurchase'] = df.groupby('CustomerID')['InvoiceDate'].shift(-1)
+df['TimeToNext'] = (df['NextPurchase'] - df['InvoiceDate']).dt.days
+df['Censored'] = df['TimeToNext'].isna().astype(int)
+df['TimeToNext'] = df['TimeToNext'].fillna(365)
+
+with pm.Model() as survival_model:
+    mu_alpha = pm.Normal('mu_alpha', mu=2, sigma=1)
+    alpha = pm.Normal('alpha', mu=mu_alpha, sigma=1, shape=5)  # Top 5 countries
+    beta = pm.Normal('beta', mu=2, sigma=1, shape=5)
+    t = pm.Weibull('t', alpha=alpha[country_idx], beta=beta[country_idx], observed=times, mask=censored==0)
+    trace = pm.sample(1000)
+      </code></pre>
+
+      <h3>Interactive Visualization</h3>
+      <div class="viz">
+        <iframe src="../plots/survival_viz.html" width="100%" height="600" frameborder="0"></iframe>
+      </div>
+
+      <p>Insights: Survival curves vary by country; frequent buyers have longer lifetimes. Full code in
+        <a href="https://github.com/hyun95roh/bayesian_analysis/scr/scenario2.py" target="_blank">GitHub</a>.
+      </p>
+
+      <p>
+        <a href="scenario1.html">← Previous: Stock Volatility</a> &nbsp;|&nbsp;
+        <a href="scenario3.html">Next: Churn Prediction →</a>
+      </p>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+  <footer>
+    <p>&copy; 2025 Hyuntae Roh. Powered by GitHub Pages and Python.</p>
+  </footer>
+</body>
+</html>

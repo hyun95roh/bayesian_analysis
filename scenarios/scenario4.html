@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scenario 4 • Music Genre Recommendation | Bayesian Analysis Portfolio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Scenario 4: Music Genre Recommendation in Entertainment</h1>
+    <p>A streaming service refines recommendations using Approximate Bayesian Computation to infer latent user preferences.</p>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="scenario1.html">Stock Volatility</a></li>
+      <li><a href="scenario2.html">Customer Lifetime Value</a></li>
+      <li><a href="scenario3.html">Churn Prediction</a></li>
+      <li><a href="scenario4.html">Music Recommendations</a></li>
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="https://github.com/hyun95roh/bayesian_analysis" target="_blank">GitHub Repo</a></li>
+      <li><a href="https://ht-roh.notion.site/The-Beauty-of-Bayesian-Approach-275a6f5aefbe80b0b6d9f478403ab753?source=copy_link" target="_blank">Notion Post</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <section>
+      <h2>Analysis Code</h2>
+      <pre><code class="language-python">
+import pandas as pd
+import pymc as pm
+import pytensor
+import requests, zipfile, io
+import xarray as xr
+import numpy as np
+import arviz as az
+
+pytensor.config.blas__ldflags = ''
+url = "http://labrosa.ee.columbia.edu/~dpwe/tmp/train_triplets.txt.zip"
+response = requests.get(url)
+with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+    with z.open('train_triplets.txt') as f:
+        df = pd.read_csv(f, sep='\t', names=['user', 'song', 'count'])
+
+df = df[df['user'].isin(df['user'].value_counts().head(100).index) & 
+        df['song'].isin(df['song'].value_counts().head(100).index)]
+
+play_counts = df.pivot_table(index='user', columns='song', values='count', fill_value=0)
+play_counts = play_counts.reindex(index=df['user'].value_counts().head(50).index, 
+                                  columns=df['song'].value_counts().head(50).index, fill_value=0).values
+play_counts_norm = play_counts / (play_counts.max() + 1e-8)
+
+with pm.Model() as abc_model:
+    user_prefs = pm.Normal('user_prefs', mu=0, sigma=1, shape=(50, 3))
+    song_features = pm.Normal('song_features', mu=0, sigma=1, shape=(50, 3))
+    mu = pm.math.sigmoid(pm.math.dot(user_prefs, song_features.T))
+    pm.Normal('observed_counts', mu=mu, sigma=0.1, observed=play_counts_norm)
+    trace = pm.sample_smc(500, cores=4)
+
+posterior = az.extract(trace, combined=True)
+user_prefs_samples = np.asarray(posterior['user_prefs'].values, dtype=np.float64)
+if user_prefs_samples.shape != (2000, 50, 3):
+    user_prefs_samples = user_prefs_samples.transpose(2, 0, 1)
+
+song_features_samples = np.asarray(posterior['song_features'].values, dtype=np.float64)
+if song_features_samples.shape != (2000, 50, 3):
+    song_features_samples = song_features_samples.transpose(2, 0, 1)
+
+user_prefs_ds = xr.Dataset(
+    {'user_prefs': (['draw', 'user', 'latent'], user_prefs_samples)},
+    coords={'draw': np.arange(2000), 'user': np.arange(50), 'latent': np.arange(3)}
+)
+song_features_ds = xr.Dataset(
+    {'song_features': (['draw', 'song', 'latent'], song_features_samples)},
+    coords={'draw': np.arange(2000), 'song': np.arange(50), 'latent': np.arange(3)}
+)
+posterior_ds = xr.merge([user_prefs_ds, song_features_ds])
+posterior_ds.to_netcdf('music_trace.nc')
+      </code></pre>
+
+      <h3>Interactive Visualization</h3>
+      <div class="viz">
+        <iframe src="../plots/music_viz.html" width="100%" height="600" frameborder="0"></iframe>
+      </div>
+
+      <p>Insights: t-SNE embeddings cluster users by preference; SMC ensures fast, reliable ABC sampling (~10–15s). Traces saved as NetCDF for reproducibility. Full code in
+        <a href="https://github.com/hyun95roh/bayesian_analysis/scr/scenario4.py" target="_blank">GitHub</a>.
+      </p>
+
+      <p>
+        <a href="scenario3.html">← Previous: Churn Prediction</a> &nbsp;|&nbsp;
+        <a href="../index.html">Back to Home</a>
+      </p>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+  <footer>
+    <p>&copy; 2025 Hyuntae Roh. Powered by GitHub Pages and Python.</p>
+  </footer>
+</body>
+</html>

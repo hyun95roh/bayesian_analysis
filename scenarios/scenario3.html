@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scenario 3 • Network Churn Prediction | Bayesian Analysis Portfolio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+  <link rel="stylesheet" href="../assets/styles.css">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Scenario 3: Network Churn Prediction in Telecommunication</h1>
+    <p>A telecom firm classifies churn risk using Bayesian logistic regression to target retention efforts.</p>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="scenario1.html">Stock Volatility</a></li>
+      <li><a href="scenario2.html">Customer Lifetime Value</a></li>
+      <li><a href="scenario3.html">Churn Prediction</a></li>
+      <li><a href="scenario4.html">Music Recommendations</a></li>
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="https://github.com/hyun95roh/bayesian_analysis" target="_blank">GitHub Repo</a></li>
+      <li><a href="https://ht-roh.notion.site/The-Beauty-of-Bayesian-Approach-275a6f5aefbe80b0b6d9f478403ab753?source=copy_link" target="_blank">Notion Post</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <section>
+      <h2>Analysis Code</h2>
+      <pre><code class="language-python">
+import pandas as pd
+import pymc as pm
+import arviz as az
+
+url = "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv"
+df = pd.read_csv(url)
+df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce').fillna(df['TotalCharges'].median())
+df['Contract'] = df['Contract'].map({'Month-to-month': 0, 'One year': 1, 'Two year': 2})
+df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0})
+X = df[['tenure', 'MonthlyCharges', 'Contract']].values
+y = df['Churn'].values
+
+with pm.Model() as churn_model:
+    beta = pm.Normal('beta', mu=0, sigma=2, shape=3)
+    intercept = pm.Normal('intercept', mu=0, sigma=2)
+    logits = pm.math.dot(X, beta) + intercept
+    pm.Bernoulli('churn', logit_p=logits, observed=y)
+    trace = pm.sample(1000)
+      </code></pre>
+
+      <h3>Interactive Visualization</h3>
+      <div class="viz">
+        <iframe src="../plots/churn_viz.html" width="100%" height="600" frameborder="0"></iframe>
+      </div>
+
+      <p>Insights: Negative <code>tenure</code> coefficient indicates longer tenure reduces churn risk (AUC ~0.85). Threshold slider adjusts classification trade-offs. Full code in
+        <a href="https://github.com/hyun95roh/bayesian_analysis/scr/scenario3.py" target="_blank">GitHub</a>.
+      </p>
+
+      <p>
+        <a href="scenario2.html">← Previous: Customer Lifetime Value</a> &nbsp;|&nbsp;
+        <a href="scenario4.html">Next: Music Recommendations →</a>
+      </p>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+  <footer>
+    <p>&copy; 2025 Hyuntae Roh. Powered by GitHub Pages and Python.</p>
+  </footer>
+</body>
+</html>
