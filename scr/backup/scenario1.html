@@ -28,17 +28,38 @@
 
   <div class="container">
     <section>
-      <h2>Rendered Notebook</h2>
-      <p>
-        The full Jupyter Notebook for this scenario (including all code cells and outputs)
-        is rendered below. It’s auto-built with <code>nbconvert --to html --template lab</code>
-        and deployed into the <code>/notebooks_html/</code> folder on GitHub Pages.
-      </p>
+      <h2>Analysis Code</h2>
+      <pre><code class="language-python">
+import yfinance as yf
+import numpy as np
+import pymc as pm
+import arviz as az
 
+df = yf.download('AAPL', start='2020-09-21', end='2025-09-21')
+df['LogReturn'] = np.log(df['Close'] / df['Close'].shift(1))
+returns = df['LogReturn'].dropna().values
+
+with pm.Model() as model:
+    mu = pm.Normal('mu', mu=0, sigma=0.01)
+    sigma = pm.InverseGamma('sigma', alpha=2, beta=0.1)
+    returns_obs = pm.Normal('returns_obs', mu=mu, sigma=sigma, observed=returns)
+    pred_returns = pm.Normal('pred_returns', mu=mu, sigma=sigma, shape=30)
+    trace = pm.sample(1000, tune=1000, return_inferencedata=True)
+
+with model:
+    pred_trace = pm.sample_posterior_predictive(trace, var_names=['pred_returns'])
+      </code></pre>
+
+      <h3>Interactive Visualization</h3>
       <div class="viz">
-        <!-- Point this iframe to your built HTML (from nbconvert) -->
-        <iframe src="../notebooks/s1.html" width="100%" height="900" frameborder="0"></iframe>
+        <!-- moved into /plots -->
+        <iframe src="../plots/volatility_viz.html" width="100%" height="600" frameborder="0"></iframe>
       </div>
+
+      <p>Insights: Posterior sigma narrows to ~0.02, reflecting reduced uncertainty. Predictive returns show 95% CI for 30-day forecasts.
+      Full code in
+      <a href="https://github.com/hyun95roh/bayesian_analysis/blob/main/scr/scenario1.py" target="_blank">GitHub</a>.
+      </p>
 
       <p>
         <a href="../index.html">← Back to Home</a> &nbsp;|&nbsp;

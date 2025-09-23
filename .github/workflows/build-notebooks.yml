@@ -1,0 +1,37 @@
+name: Build Notebooks
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install jupyterlab nbconvert
+
+      - name: Build HTML notebooks
+        run: |
+          mkdir -p notebooks_html
+          jupyter nbconvert notebooks/*.ipynb --to html --template lab --output-dir notebooks
+
+      - name: Commit built HTML
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add notebooks_html
+          git commit -m "Auto-build notebooks" || echo "No changes"
+          git push
