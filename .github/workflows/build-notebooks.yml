@@ -1,37 +1,60 @@
-name: Build Notebooks
+name: Build & Deploy (Pages)
 
 on:
   push:
-    branches: ["main"]
-  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install deps
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install jupyterlab nbconvert
 
-      - name: Build HTML notebooks
+      - name: Build site
         run: |
-          mkdir -p notebooks_html
+          # Build notebooks -> HTML into notebooks
+          mkdir -p notebooks
           jupyter nbconvert notebooks/*.ipynb --to html --template lab --output-dir notebooks
+          
+          # Collect static site into _site/
+          mkdir -p _site
+          cp -r index.html assets plots scenarios _site/ || true
+          cp -r notebooks _site/
 
-      - name: Commit built HTML
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add notebooks_html
-          git commit -m "Auto-build notebooks" || echo "No changes"
-          git push
+          # (Optional) if your index/scenario pages reference notebooks/*.html via ../,
+          # the folder structure above mirrors your repo layout so links keep working.
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
