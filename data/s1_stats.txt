@@ -1,23 +1,21 @@
 # Cell 2 outputs:
-/tmp/ipykernel_686548/1350976187.py:15: FutureWarning:
-
-YF.download() has changed argument auto_adjust default to True
-
+/tmp/ipykernel_806649/1350976187.py:15: FutureWarning: YF.download() has changed argument auto_adjust default to True
+  df = yf.download('AAPL', start=start_date, end=end_date)
 [*********************100%***********************]  1 of 1 completedOriginal columns: [('Close', 'AAPL'), ('High', 'AAPL'), ('Low', 'AAPL'), ('Open', 'AAPL'), ('Volume', 'AAPL')]
 Data head:
  Price            Close        High         Low        Open     Volume
 Ticker            AAPL        AAPL        AAPL        AAPL       AAPL
 Date                                                                 
-2020-09-21  107.076775  107.183774  100.287201  101.687917  195713800
+2020-09-21  107.076782  107.183782  100.287208  101.687924  195713800
 2020-09-22  108.759567  109.780924  106.181871  109.605834  183055400
 Flattened columns: ['Close', 'High', 'Low', 'Open', 'Volume']
 Weekly returns index length: 262 Weekly returns length: 261
 Monthly returns index length: 61 Monthly returns length: 60
 
 Data Summary:
-Daily Returns - Shape: (1256,) Mean: 0.06942227280719879 % Std: 1.8063436717421542 %
-Weekly Returns - Shape: (261,) Mean: 0.32649634605204286 % Std: 3.798041348651586 %
-Monthly Returns - Shape: (60,) Mean: 1.3686668320306032 % Std: 7.131263413050587 %
+Daily Returns - Shape: (1256,) Mean: 0.06942226713429855 % Std: 1.806343449724333 %
+Weekly Returns - Shape: (261,) Mean: 0.32649626575832713 % Std: 3.798041584036814 %
+Monthly Returns - Shape: (60,) Mean: 1.3686670577848252 % Std: 7.13126260980795 %
 Data ready for modeling. Proceed to Cell 3.
 
 
@@ -25,110 +23,119 @@ Data ready for modeling. Proceed to Cell 3.
 # Cell 4 outputs:
 Daily InferenceData groups: ['posterior', 'log_likelihood', 'sample_stats', 'observed_data']
 Daily Model Posterior Summary:
-         mean     sd  hdi_3%  hdi_97%  mcse_mean  mcse_sd  ess_bulk  ess_tail  \
-mu     0.001  0.001  -0.000    0.002        0.0      0.0   11943.0    2923.0   
-sigma  0.018  0.000   0.017    0.019        0.0      0.0    9305.0    3119.0   
+         mean   sd  hdi_3%  hdi_97%  mcse_mean  mcse_sd  ess_bulk  ess_tail  \
+mu     0.001  0.0  -0.000    0.002        0.0      0.0   10558.0    2930.0   
+sigma  0.018  0.0   0.017    0.019        0.0      0.0   10896.0    3034.0   
 
        r_hat  
 mu       1.0  
 sigma    1.0  
-Daily Posterior Mu KDE - Max Density: 7.766557518946654 Mode: 0.07065587950162541
-Daily Posterior Sigma KDE - Max Density: 7.766557518946654 Mode: 0.07065587950162541
-Daily Mu Autocorrelation (Lags 0-20): [ 1.         -0.45419825  0.20808339 -0.08396301  0.03054548 -0.02407216
- -0.00186931  0.02701046 -0.04235265  0.03765395 -0.02158405  0.00825812
-  0.00940915 -0.00303876  0.01274529 -0.01153709  0.02565782 -0.01598481
-  0.00533996 -0.00881318  0.01006884]
-Daily Sigma Autocorrelation (Lags 0-20): [ 1.         -0.37079777  0.13749486 -0.08032572  0.04981631 -0.01615117
-  0.00892475 -0.00284752  0.00141115 -0.00375275  0.00954335 -0.00365461
-  0.00493167  0.01984575 -0.0212205   0.00943834 -0.01125087  0.00506007
-  0.00643886 -0.00111402  0.02320419]
+Daily Posterior Mu KDE - Max Density: 7.614478808760005 Mode: 0.057025336521792425
+Daily Posterior Sigma KDE - Max Density: 7.614478808760005 Mode: 0.057025336521792425
+Daily Mu Autocorrelation (Lags 0-20): [ 1.         -0.40890822  0.1700153  -0.08377916  0.03316355 -0.01050511
+  0.00341937 -0.00725811  0.01525233 -0.01761104  0.00722872 -0.0121172
+  0.01125135 -0.01562973  0.01559259 -0.01358898  0.02229504 -0.01612435
+  0.00581921 -0.00438825  0.00235718]
+Daily Sigma Autocorrelation (Lags 0-20): [ 1.         -0.4129637   0.17224374 -0.08570788  0.06111447 -0.04510712
+  0.02808161 -0.01776143 -0.01330806 -0.00162556  0.00462059 -0.01599628
+  0.02099817 -0.03344538  0.01921486 -0.01703282  0.01740202 -0.02370087
+  0.01340411 -0.00650341 -0.01724409]
 Daily Mu Autocorrelation - Lags where |ACF| < 0.1: [ 3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20]
 Daily Sigma Autocorrelation - Lags where |ACF| < 0.1: [ 3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20]
-Daily PPC - Observed Returns Mean: 0.06942227280719879 % Std: 1.8063436717421542 %
-Daily PPC - Simulated Returns Mean: 0.14153296520839942 % Std: 1.836923331324957 %
-Daily PPC - KS Test Statistic: 0.07961783439490445 P-value: 0.0006934090021512615
+Daily PPC - Observed Returns Mean: 0.06942226713429855 % Std: 1.806343449724333 %
+Daily PPC - Simulated Returns Mean: 0.10973253241093132 % Std: 1.7832068095676044 %
+Daily PPC - KS Test Statistic: 0.06687898089171974 P-value: 0.0072508117018944135
 
 Weekly InferenceData groups: ['posterior', 'log_likelihood', 'sample_stats', 'observed_data']
 Weekly Model Posterior Summary:
          mean     sd  hdi_3%  hdi_97%  mcse_mean  mcse_sd  ess_bulk  ess_tail  \
-mu     0.003  0.002  -0.001    0.007        0.0      0.0    4868.0    2970.0   
-sigma  0.038  0.002   0.035    0.041        0.0      0.0    5323.0    3390.0   
+mu     0.003  0.002  -0.001    0.007        0.0      0.0    6011.0    3279.0   
+sigma  0.038  0.002   0.035    0.041        0.0      0.0    4677.0    3101.0   
 
        r_hat  
 mu       1.0  
 sigma    1.0  
-Weekly Posterior Mu KDE - Max Density: 1.6792862235415311 Mode: 0.3108163051723246
-Weekly Posterior Sigma KDE - Max Density: 1.6792862235415311 Mode: 0.3108163051723246
-Weekly Mu Autocorrelation (Lags 0-20): [ 1.00000000e+00 -9.34328305e-02  1.32648747e-02 -1.13567759e-02
- -1.78452541e-03 -1.88288598e-03  4.41354091e-03 -6.56936704e-04
- -3.16818932e-03 -1.69678505e-03  4.01806985e-03  7.36050705e-03
- -1.58348409e-02 -9.76530308e-03  1.23606125e-02 -1.33729603e-02
- -8.75343568e-03 -6.90644636e-04 -2.29153272e-02 -2.20259277e-02
-  2.87857693e-02]
-Weekly Sigma Autocorrelation (Lags 0-20): [ 1.00000000e+00 -1.27853503e-01  1.82989280e-02 -2.63791720e-02
-  1.96942936e-02  1.92989824e-02 -4.07723657e-02 -9.43622759e-03
- -7.13707801e-03 -8.07808415e-04  2.10913674e-02 -6.04342674e-03
-  1.36630378e-02  1.88287951e-02 -6.05813429e-04 -8.19164969e-03
-  1.72863218e-02 -3.94976392e-02  2.60976336e-02 -2.28500382e-02
-  2.28109702e-02]
-Weekly Mu Autocorrelation - Lags where |ACF| < 0.1: [ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20]
-Weekly Sigma Autocorrelation - Lags where |ACF| < 0.1: [ 2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20]
-Weekly PPC - Observed Returns Mean: 0.32649634605204286 % Std: 3.798041348651586 %
-Weekly PPC - Simulated Returns Mean: 0.5418033580905532 % Std: 3.5007957698577425 %
-Weekly PPC - KS Test Statistic: 0.06896551724137931 P-value: 0.5649424588759753
+Weekly Posterior Mu KDE - Max Density: 1.7695516849721509 Mode: 0.32087315489406754
+Weekly Posterior Sigma KDE - Max Density: 1.7695516849721509 Mode: 0.32087315489406754
+Weekly Mu Autocorrelation (Lags 0-20): [ 1.00000000e+00 -1.77956426e-01  2.56206422e-02 -3.10093653e-02
+  6.19791455e-03  2.20424866e-02  4.27638740e-04 -9.80249550e-03
+ -1.32851794e-02 -3.76032587e-03 -1.37521652e-02 -2.93921435e-02
+ -2.43833373e-02  3.92666206e-02 -8.47906811e-03 -6.07916137e-03
+ -2.15980338e-02 -3.92007347e-03  2.73751278e-02 -4.05852223e-03
+  2.08636046e-03]
+Weekly Sigma Autocorrelation (Lags 0-20): [ 1.00000000e+00 -9.73401367e-02  2.14592713e-02  8.23329739e-03
+ -1.51539978e-02 -1.86427544e-02  2.57082355e-04 -5.32351379e-03
+ -2.20133265e-02 -4.60876444e-04 -1.25338472e-02  1.47728650e-02
+  1.40206800e-03 -1.28922409e-02  1.73683101e-02 -3.03478105e-02
+ -1.09634782e-02 -1.04716307e-02 -1.78133730e-02  1.29675271e-02
+  1.07774487e-02]
+Weekly Mu Autocorrelation - Lags where |ACF| < 0.1: [ 2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20]
+Weekly Sigma Autocorrelation - Lags where |ACF| < 0.1: [ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20]
+Weekly PPC - Observed Returns Mean: 0.32649626575832713 % Std: 3.798041584036814 %
+Weekly PPC - Simulated Returns Mean: 0.2676915605296466 % Std: 3.7579015041352317 %
+Weekly PPC - KS Test Statistic: 0.038314176245210725 P-value: 0.9910929250050866
 
 Monthly InferenceData groups: ['posterior', 'log_likelihood', 'sample_stats', 'observed_data']
 Monthly Model Posterior Summary:
          mean     sd  hdi_3%  hdi_97%  mcse_mean  mcse_sd  ess_bulk  ess_tail  \
-mu     0.007  0.007  -0.006    0.020        0.0      0.0    4641.0    3269.0   
-sigma  0.072  0.007   0.060    0.085        0.0      0.0    5494.0    2993.0   
+mu     0.007  0.007  -0.005    0.021        0.0      0.0    5136.0    3250.0   
+sigma  0.072  0.007   0.060    0.084        0.0      0.0    4385.0    3037.0   
 
        r_hat  
 mu       1.0  
 sigma    1.0  
-Monthly Posterior Mu KDE - Max Density: 0.5463456018915603 Mode: 0.6613412361859003
-Monthly Posterior Sigma KDE - Max Density: 0.5463456018915603 Mode: 0.6613412361859003
-Monthly Mu Autocorrelation (Lags 0-20): [ 1.         -0.08044701  0.03063503 -0.0301093  -0.02460214 -0.00823987
-  0.01075432  0.00686113  0.01460063 -0.00822066  0.04974378 -0.04367125
-  0.01725844 -0.00551194 -0.02954341  0.00335966  0.00603984  0.02234116
- -0.01426044 -0.00306824  0.01061512]
-Monthly Sigma Autocorrelation (Lags 0-20): [ 1.00000000e+00 -1.75548076e-01  4.65327537e-02 -1.13923450e-02
-  1.75699063e-02 -3.17313753e-02 -5.23874338e-04  1.25135107e-03
- -2.43760492e-02  1.72077790e-02 -2.97630303e-02 -3.03791995e-03
-  2.39789939e-02  8.86033250e-03  1.69656367e-02 -1.49317815e-02
-  3.28245627e-03 -5.78010647e-03  8.52752273e-03 -1.36890395e-02
-  1.52344630e-02]
-Monthly Mu Autocorrelation - Lags where |ACF| < 0.1: [ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20]
-Monthly Sigma Autocorrelation - Lags where |ACF| < 0.1: [ 2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20]
-Monthly PPC - Observed Returns Mean: 1.3686668320306032 % Std: 7.131263413050587 %
-Monthly PPC - Simulated Returns Mean: 2.038118379483327 % Std: 7.304748904288526 %
-Monthly PPC - KS Test Statistic: 0.16666666666666666 P-value: 0.37773061749650066
+Monthly Posterior Mu KDE - Max Density: 0.5519293852706516 Mode: 0.9155300282812107
+Monthly Posterior Sigma KDE - Max Density: 0.5519293852706516 Mode: 0.9155300282812107
+Monthly Mu Autocorrelation (Lags 0-20): [ 1.         -0.18458708  0.04596753 -0.00769737  0.01043301  0.01295378
+  0.01061231  0.01248909 -0.01647782  0.00592808 -0.01070497  0.02091297
+ -0.01379494 -0.00529173  0.0089421   0.0017012  -0.02215158  0.00516452
+  0.00731907 -0.00526423 -0.00158223]
+Monthly Sigma Autocorrelation (Lags 0-20): [ 1.00000000e+00 -8.09516139e-02  5.22970534e-02 -8.84129993e-03
+ -1.74199066e-02 -3.53178332e-03  9.79553834e-03 -1.86945052e-02
+  1.35165929e-02 -3.26958703e-02  5.81550125e-03 -7.57098437e-03
+  1.30357064e-03 -4.70078517e-03 -5.04098047e-04  4.54577837e-04
+ -6.21847325e-03  3.02429784e-03 -1.62406586e-02  1.04267664e-02
+ -2.33263186e-03]
+Monthly Mu Autocorrelation - Lags where |ACF| < 0.1: [ 2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20]
+Monthly Sigma Autocorrelation - Lags where |ACF| < 0.1: [ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20]
+Monthly PPC - Observed Returns Mean: 1.3686670577848252 % Std: 7.13126260980795 %
+Monthly PPC - Simulated Returns Mean: 2.139386305861831 % Std: 7.224897895004995 %
+Monthly PPC - KS Test Statistic: 0.15 P-value: 0.51301231282104
 
 
 
 # Cell 5 outputs:
+PPC Comparison (KS Test P-values, higher is better):
+Daily: KS Stat = 0.0669, P-value = 0.0073
+Weekly: KS Stat = 0.0383, P-value = 0.9911
+Monthly: KS Stat = 0.1500, P-value = 0.5130
+
+Simulation Results:
+Daily: Expected Profit 7.19%, Max Loss (VaR) 3.51%
+Weekly: Expected Profit 15.22%, Max Loss (VaR) 7.08%
+Monthly: Expected Profit 28.25%, Max Loss (VaR) 3.35%
+
 Profit Distribution Stats:
-Daily Profits - Mean: 7.19%, Std: 2.43%, Min: 0.75%, Max: 18.08%
-Weekly Profits - Mean: 15.28%, Std: 5.38%, Min: 0.35%, Max: 46.75%
-Monthly Profits - Mean: 27.97%, Std: 16.84%, Min: -9.08%, Max: 103.70%
+Daily Profits - Mean: 7.19%, Std: 2.45%, Min: 1.42%, Max: 15.65%
+Weekly Profits - Mean: 15.22%, Std: 5.34%, Min: 2.06%, Max: 37.98%
+Monthly Profits - Mean: 28.25%, Std: 16.82%, Min: -9.19%, Max: 117.58%
 
 Decision Stats:
-Daily Avg Buys: 2.47
-Weekly Avg Buys: 2.41
+Daily Avg Buys: 2.46
+Weekly Avg Buys: 2.38
 Monthly Avg Buys: 2.16
-Daily Buy Counts KDE - Max Density: 0.5715, Mode: 2.01
-Weekly Buy Counts KDE - Max Density: 0.6086, Mode: 2.01
-Monthly Buy Counts KDE - Max Density: 0.3807, Mode: 0.01
-
+Daily Buy Counts KDE - Max Density: 0.6043, Mode: 2.99
+Weekly Buy Counts KDE - Max Density: 0.6170, Mode: 2.01
+Monthly Buy Counts KDE - Max Density: 0.3763, Mode: 0.01
 
 
 # Cell 6 outputs:
-Expected Gain (Mean): 15.27997698821013 %
-Gain Distribution - 95% CI: [ 5.93533582 27.24257624]
-Risk (Mean Drawdown): 3.0232178919249266 %
-Risk Distribution - 5% VaR (Worst Loss): -0.06881876208133891 %
+Expected Gain (Mean): 15.215773048004296 %
+Gain Distribution - 95% CI: [ 6.02833362 26.89014718]
+Risk (Mean Drawdown): 3.0224151204567193 %
+Risk Distribution - 5% VaR (Worst Loss): -0.04093420281356326 %
 Probability of Positive Gain: 1.0
-Average Buys/Sells/Holds per 5 Decisions: 2.4075 ,  2.0725 ,  0.52
+Average Buys/Sells/Holds per 5 Decisions: 2.38175 ,  2.09175 ,  0.5265
 
 
 
@@ -136,65 +143,58 @@ Average Buys/Sells/Holds per 5 Decisions: 2.4075 ,  2.0725 ,  0.52
 Weekly Student-t InferenceData groups: ['posterior', 'log_likelihood', 'sample_stats', 'observed_data']
 Weekly Student-t Model Posterior Summary:
          mean     sd  hdi_3%  hdi_97%  mcse_mean  mcse_sd  ess_bulk  ess_tail  \
-mu     0.003  0.002  -0.001    0.007      0.000    0.000    5173.0    3092.0   
-sigma  0.033  0.002   0.029    0.037      0.000    0.000    3714.0    2644.0   
-nu     9.005  3.879   3.574   16.368      0.062    0.077    3977.0    2793.0   
+mu     0.003  0.002  -0.001    0.007      0.000    0.000    6567.0    2997.0   
+sigma  0.033  0.002   0.029    0.037      0.000    0.000    3814.0    2785.0   
+nu     9.064  3.939   3.330   16.409      0.061    0.079    4131.0    3286.0   
 
        r_hat  
 mu       1.0  
 sigma    1.0  
 nu       1.0  
-Weekly Student-t PPC - Observed Mean: 0.32649634605204286 % Std: 3.798041348651586 %
-Weekly Student-t PPC - Simulated Mean: -0.07042897100813059 % Std: 3.6683341196540544 %
-Weekly Student-t PPC - KS Test Statistic: 0.07279693486590039 P-value: 0.49446273975332466
-
-Weekly Student-t: Expected Profit 14.65%, Max Loss (VaR) 6.46%
-Weekly Student-t Profits - Mean: 14.64940249172369 Std: 5.809032098578226 Min: -0.688941308578456 Max: 65.30046141201635 %
-Weekly Student-t Avg Buys: 2.382
+Weekly Student-t PPC - Observed Mean: 0.32649626575832713 % Std: 3.798041584036814 %
+Weekly Student-t PPC - Simulated Mean: 0.26356405602372557 % Std: 3.70604409929386 %
+Weekly Student-t PPC - KS Test Statistic: 0.05747126436781609 P-value: 0.7828638713559694
+Weekly Student-t: Expected Profit 14.56%, Max Loss (VaR) 6.39%
+Weekly Student-t Profits - Mean: 14.558663806524125 Std: 5.750507831686223 Min: 0.9898624610903662 Max: 47.53255485293486 %
+Weekly Student-t Avg Buys: 2.4305
 Weekly Model Comparison (KS Test P-values):
-Normal: KS Stat = 0.0690, P-value = 0.5649
-Student-t: KS Stat = 0.0728, P-value = 0.4945
+Normal: KS Stat = 0.0383, P-value = 0.9911
+Student-t: KS Stat = 0.0575, P-value = 0.7829
 
 
 
 # Cell 8 output:
 Weekly GARCH GARCH Model Posterior Summary:
          mean     sd  hdi_3%  hdi_97%  mcse_mean  mcse_sd  ess_bulk  ess_tail  \
-mu     0.003  0.002  -0.001    0.007      0.000    0.000    1209.0    1386.0   
-omega  0.001  0.000   0.000    0.001      0.000    0.000     222.0      62.0   
-alpha  0.116  0.074   0.000    0.245      0.001    0.001    2231.0    1781.0   
-beta   0.273  0.193   0.000    0.633      0.015    0.014     197.0      75.0   
+mu     0.003  0.002  -0.001    0.007      0.000    0.000    2744.0    2386.0   
+omega  0.001  0.000   0.000    0.001      0.000    0.000     302.0      70.0   
+alpha  0.115  0.074   0.000    0.244      0.001    0.001    2346.0    1200.0   
+beta   0.285  0.209   0.000    0.652      0.012    0.010     282.0     100.0   
 
        r_hat  
 mu      1.00  
-omega   1.03  
+omega   1.01  
 alpha   1.00  
-beta    1.04  
-Weekly GARCH PPC - Observed Mean: 0.32649634605204286 % Std: 3.798041348651586 %
-Weekly GARCH PPC - Simulated Mean: 0.38503442119913694 % Std: 3.8850665529639783 %
-Weekly GARCH PPC - KS Test Statistic: 0.07662835249042145 P-value: 0.42828572432069373
-
-/root/anaconda3/lib/python3.12/site-packages/arviz/stats/stats.py:1655: UserWarning:
-
-For one or more samples the posterior variance of the log predictive densities exceeds 0.4. This could be indication of WAIC starting to fail. 
-See http://arxiv.org/abs/1507.04544 for details
-
-/root/anaconda3/lib/python3.12/site-packages/arviz/stats/stats.py:1655: UserWarning:
-
-For one or more samples the posterior variance of the log predictive densities exceeds 0.4. This could be indication of WAIC starting to fail. 
-See http://arxiv.org/abs/1507.04544 for details
-
+beta    1.01  
+Weekly GARCH PPC - Observed Mean: 0.32649626575832713 % Std: 3.798041584036814 %
+Weekly GARCH PPC - Simulated Mean: -0.08589650942639122 % Std: 4.150238387988314 %
+Weekly GARCH PPC - KS Test Statistic: 0.1111111111111111 P-value: 0.07969143568751573
 Weekly Model Comparison (WAIC):
-                   rank   elpd_waic    p_waic  elpd_diff    weight         se  \
-Weekly Student-t     0  484.586935  2.562060   0.000000  0.823984  13.854134   
-Weekly GARCH         1  481.108435  5.250784   3.478500  0.176016  14.337985   
-Weekly Normal        2  481.103184  2.425961   3.483751  0.000000  14.335914   
+                   rank   elpd_waic    p_waic  elpd_diff        weight  \
+Weekly Student-t     0  484.524890  2.617566   0.000000  8.330482e-01   
+Weekly Normal        1  481.147177  2.380641   3.377713  3.305137e-16   
+Weekly GARCH         2  480.962819  5.518190   3.562071  1.669518e-01   
 
-                       dse  warning scale  
-Weekly Student-t  0.000000    False   log  
-Weekly GARCH      3.560560     True   log  
-Weekly Normal     2.965598     True   log  
-Weekly GARCH: Expected Profit 15.53%, Max Loss (VaR) 6.97%
-
-Weekly GARCH Profits - Mean: 15.533632709346836 Std: 6.040332276062555 Min: 0.8367384727286845 Max: 50.49893539553425 %
-Weekly GARCH Avg Buys: 2.42
+                         se       dse  warning scale  
+Weekly Student-t  13.856720  0.000000    False   log  
+Weekly Normal     14.385628  2.972439     True   log  
+Weekly GARCH      14.401266  3.577157     True   log  
+/root/anaconda3/lib/python3.12/site-packages/arviz/stats/stats.py:1655: UserWarning: For one or more samples the posterior variance of the log predictive densities exceeds 0.4. This could be indication of WAIC starting to fail. 
+See http://arxiv.org/abs/1507.04544 for details
+  warnings.warn(
+/root/anaconda3/lib/python3.12/site-packages/arviz/stats/stats.py:1655: UserWarning: For one or more samples the posterior variance of the log predictive densities exceeds 0.4. This could be indication of WAIC starting to fail. 
+See http://arxiv.org/abs/1507.04544 for details
+  warnings.warn(
+Weekly GARCH: Expected Profit 15.57%, Max Loss (VaR) 7.02%
+Weekly GARCH Profits - Mean: 15.574850403027515 Std: 6.215458790132166 Min: 0.4716135065243962 Max: 59.244780127362205 %
+Weekly GARCH Avg Buys: 2.39
