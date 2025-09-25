@@ -30,19 +30,33 @@ jobs:
           pip install -r requirements.txt
           pip install jupyterlab nbconvert
 
-      - name: Build site
+      - name: Execute & export notebooks -> notebooks
         run: |
-          # Build notebooks -> HTML into notebooks
           mkdir -p notebooks
-          jupyter nbconvert notebooks/*.ipynb --to html --template lab --output-dir notebooks
-          
-          # Collect static site into _site/
+          python - <<'PY'
+import pathlib, subprocess, sys
+nb_list = [str(p) for p in pathlib.Path(".").rglob("*.ipynb") if ".ipynb_checkpoints" not in str(p)]
+if not nb_list:
+    print("No notebooks found", file=sys.stderr); sys.exit(0)
+for nb in nb_list:
+    print("Executing & exporting:", nb, flush=True)
+    subprocess.run(["jupyter","nbconvert",nb,"--to","notebook","--execute","--inplace","--ExecutePreprocessor.timeout=1200"], check=True)
+    subprocess.run(["jupyter","nbconvert",nb,"--to","html","--template","lab","--output-dir","notebooks"], check=True)
+PY
+
+      - name: Inject cache-busting SHAs into scenario pages
+        run: |
+          SHA_SHORT=$(echo "${GITHUB_SHA}" | cut -c1-8)
+          for f in scenarios/*.html; do
+            sed -i "s|notebooks/\([A-Za-z0-9_-]\+\)\.html|notebooks/\1.html?v=${SHA_SHORT}|g" "$f"
+          done
+
+      - name: Build _site (copy static + exported)
+        run: |
           mkdir -p _site
           cp -r index.html assets plots scenarios _site/ || true
           cp -r notebooks _site/
-
-          # (Optional) if your index/scenario pages reference notebooks/*.html via ../,
-          # the folder structure above mirrors your repo layout so links keep working.
+          echo "Built files:"; find _site -type f | wc -l
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
