@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bayesian Sim Demo</title>
+  <script src="https://cdn.plot.ly/plotly-2.34.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial; margin: 18px; background:#f7f7fb; color:#111; }
+    h1 { margin-bottom: 6px; }
+    .row { display:flex; gap:16px; align-items:flex-start; }
+    .col { flex:1; min-width:300px; }
+    .card { background:white; padding:12px; border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,0.06); }
+    label { display:block; font-size:13px; margin-top:8px; }
+    input[type="number"], input[type="range"], select { width:100%; }
+    #plots { display:grid; grid-template-columns: 1fr; gap:12px; margin-top:12px; }
+    .controls { margin-bottom:12px; }
+    .small { font-size:12px; color:#444; }
+    button { margin-top:8px; padding:8px 12px; border-radius:6px; border:1px solid #ddd; background:white; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h1>Bayesian Update - Interactive Demo</h1>
+  <div class="small">Click "Run" after setting prior. All calculations are done within browser.</div>
+
+  <div class="row" style="margin-top:12px;">
+    <div class="col card">
+      <h3>Common Settings</h3>
+      <div class="controls">
+        <label>Random Seed (integer): <input id="seed" type="number" value="42" /></label>
+        <label>Trials(sample): <input id="nTrials" type="number" value="300" /></label>
+        <button id="btnRun">Run all examples</button>
+      </div>
+
+      <h3>Ex1: Dice (Dirichlet → categorical)</h3>
+      <div class="controls">
+        <label>prior for face1 (prob mass): <input id="ex1_p1" type="number" step="0.01" value="0.5" /></label>
+        <label>prior for other faces (each): <input id="ex1_pother" type="number" step="0.01" value="0.1" /></label>
+        <label>pseudo-count strength m: <input id="ex1_m" type="number" step="1" value="30" /></label>
+      </div>
+
+      <h3>Ex2/3/4: Bernoulli-family (Beta prior)</h3>
+      <div class="controls">
+        <label>Beta prior a (successes): <input id="beta_a" type="number" step="1" value="4" /></label>
+        <label>Beta prior b (failures): <input id="beta_b" type="number" step="1" value="6" /></label>
+      </div>
+
+      <h3>Ex5: Gamma tail (rate-parameterization)</h3>
+      <div class="controls">
+        <label>True distribution (α, β): <input id="ex5_alpha" type="number" step="0.1" value="2" /> , <input id="ex5_beta" type="number" step="0.1" value="4" /></label>
+        <label>User's prior for beta ~ Gamma(shape, rate): <input id="ex5_prior_shape" type="number" step="0.1" value="2" /> , <input id="ex5_prior_rate" type="number" step="0.1" value="1" /></label>
+        <label>Observation x (first failure): <input id="ex5_x" type="number" step="1" value="20" /></label>
+      </div>
+    </div>
+
+    <div class="col card">
+      <h3>설명</h3>
+      <p class="small">This Demo shows a progress in real-time :</p>
+      <ul class="small">
+        <li>A progress of posterior mean converges into the true value</li>
+        <li>95% HDI (sampling based)</li>
+        <li>Posterior predictive (sampling) distribution histogram</li>
+        <li>Assess convergence speed by checking KL divergence(true || posterior-mean)</li>
+      </ul>
+      <p class="small"> :D .</p>
+    </div>
+  </div>
+
+  <div id="plots">
+    <div id="plot_ex1" class="card"></div>
+    <div id="plot_ex1_kl" class="card"></div>
+    <div id="plot_ex2" class="card"></div>
+    <div id="plot_ex2_kl" class="card"></div>
+    <div id="plot_ex3" class="card"></div>
+    <div id="plot_ex3_kl" class="card"></div>
+    <div id="plot_ex4" class="card"></div>
+    <div id="plot_ex4_kl" class="card"></div>
+    <div id="plot_ex5" class="card"></div>
+  </div>
+
+<script>
+/* Utility: seeded RNG (simple LCG) */
+function LCG(seed) {
+  let s = seed >>> 0;
+  return function() {
+    s = (1664525 * s + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
+/* Helper: draw Beta posterior samples and HDI */
+function hdiFromSamples(samples, cred=0.95) {
+  samples = samples.slice().sort((a,b)=>a-b);
+  const n = samples.length;
+  const span = Math.floor(cred*n);
+  let minw = Infinity, lo=0, hi=1;
+  for (let i=0;i+span<n;i++){
+    const w = samples[i+span]-samples[i];
+    if (w < minw){ minw = w; lo = samples[i]; hi = samples[i+span]; }
+  }
+  return [lo,hi];
+}
+
+/* KL for Bernoulli */
+function klBern(p, q) {
+  q = Math.min(Math.max(q, 1e-12), 1-1e-12);
+  if (p === 0) return -Math.log(1-q);
+  if (p === 1) return -Math.log(q);
+  return p*Math.log(p/q) + (1-p)*Math.log((1-p)/(1-q));
+}
+
+/* Dirichlet-Cat update simulator */
+function dirichletUpdate(true_probs, alpha0, n, rng) {
+  const k = true_probs.length;
+  let alpha = alpha0.slice();
+  const means = [];
+  const kl = [];
+  for (let t=0;t<n;t++){
+    // sample category
+    const r = rng();
+    let c = 0; let cum = true_probs[0];
+    while (r>cum && c<k-1){ c++; cum += true_probs[c]; }
+    alpha[c] += 1;
+    const total = alpha.reduce((a,b)=>a+b,0);
+    const meanVec = alpha.map(v=>v/total);
+    means.push(meanVec);
+    // KL between true and meanVec
+    let K=0;
+    for (let i=0;i<k;i++){
+      if (true_probs[i]>0) K += true_probs[i]*Math.log(true_probs[i]/Math.max(meanVec[i],1e-12));
+    }
+    kl.push(K);
+  }
+  return {means, kl, final_alpha: alpha};
+}
+
+/* Beta-Bernoulli update simulator with diagnostics */
+function betaUpdate(p_true, a0, b0, n, rng) {
+  let a=a0, b=b0;
+  const means = [], hdi_lo = [], hdi_hi = [], kl = [];
+  for (let t=0;t<n;t++){
+    const u = rng();
+    const x = (u < p_true) ? 1 : 0;
+    a += x; b += 1-x;
+    const mean = a / (a + b);
+    means.push(mean);
+    // sample from Beta(a,b) using jStat
+    const samples = [];
+    for (let i=0;i<5000;i++){
+      samples.push(jStat.beta.sample(a,b));
+    }
+    const [lo,hi] = hdiFromSamples(samples, 0.95);
+    hdi_lo.push(lo); hdi_hi.push(hi);
+    kl.push(klBern(p_true, mean));
+  }
+  return {means, hdi_lo, hdi_hi, kl, final_a: a, final_b: b};
+}
+
+/* main runner */
+function runAll() {
+  const seed = parseInt(document.getElementById('seed').value) || 42;
+  const rng = LCG(seed);
+  const nTrials = parseInt(document.getElementById('nTrials').value) || 300;
+
+  // Ex1 params
+  const p1 = parseFloat(document.getElementById('ex1_p1').value) || 0.5;
+  const pOther = parseFloat(document.getElementById('ex1_pother').value) || 0.1;
+  const m = parseFloat(document.getElementById('ex1_m').value) || 30;
+  const true_die = Array(6).fill(1/6);
+  const prior_probs = [p1].concat(Array(5).fill(pOther));
+  const alpha0 = prior_probs.map(p=>p*m);
+
+  const res1 = dirichletUpdate(true_die, alpha0, nTrials, rng);
+  // prepare traces: one trace per face
+  const faces = Array.from({length:6},(_,i)=>({x: Array.from({length:res1.means.length},(_,t)=>t+1), y: res1.means.map(v=>v[i]), name:`Face ${i+1}`, mode:'lines'}));
+  Plotly.newPlot('plot_ex1', faces, {title:'Ex1) Dirichlet posterior means per face', xaxis:{title:'rolls'}, yaxis:{range:[0,1]}});
+
+  Plotly.newPlot('plot_ex1_kl', [{x:res1.kl.map((v,i)=>i+1), y:res1.kl, type:'scatter'}], {title:'Ex1 KL(true || posterior-mean)', xaxis:{title:'rolls'}, yaxis:{title:'KL (nats)'}});
+
+  // Ex2: Bus wait <=5min. True p = 5/30.
+  const p_true_bus = 5/30;
+  const a0 = parseFloat(document.getElementById('beta_a').value) || 4;
+  const b0 = parseFloat(document.getElementById('beta_b').value) || 6;
+  const res2 = betaUpdate(p_true_bus,a0,b0,nTrials, rng);
+  Plotly.newPlot('plot_ex2', [
+    {x: res2.means.map((v,i)=>i+1), y: res2.means, mode:'lines', name:'posterior mean'},
+    {x: res2.hdi_lo.map((v,i)=>i+1), y: res2.hdi_lo, mode:'lines', line:{width:0}, name:'HDI_lo', showlegend:false},
+    {x: res2.hdi_hi.map((v,i)=>i+1), y: res2.hdi_hi, mode:'lines', fill:'tonexty', name:'HDI_hi', fillcolor:'rgba(0,100,200,0.15)'}
+  ], {title:'Ex2) Bus wait ≤5min: posterior mean & HDI', xaxis:{title:'trials'}, yaxis:{title:'p'}});
+  Plotly.newPlot('plot_ex2_kl', [{x:res2.kl.map((v,i)=>i+1), y:res2.kl, type:'scatter'}], {title:'Ex2 KL', xaxis:{title:'trials'}, yaxis:{title:'KL'}});
+
+  // Ex3: Lottery p_true=0.001
+  const p_true_lotto = 0.001;
+  const res3 = betaUpdate(p_true_lotto,a0,b0,nTrials, rng);
+  Plotly.newPlot('plot_ex3', [{x:res3.means.map((v,i)=>i+1), y:res3.means, mode:'lines'}], {title:'Ex3) Lottery posterior mean', xaxis:{title:'weeks'}, yaxis:{title:'p'}});
+  Plotly.newPlot('plot_ex3_kl', [{x:res3.kl.map((v,i)=>i+1), y:res3.kl, type:'scatter'}], {title:'Ex3 KL', xaxis:{title:'weeks'}, yaxis:{title:'KL'}});
+
+  // Ex4: Best-of-7: p_true=0.7
+  const p_true_A = 0.7;
+  const res4 = betaUpdate(p_true_A, a0, b0, nTrials, rng);
+  // plugin: p_series_end_in_5
+  function pEndsIn5(p) { return 4*Math.pow(p,4)*(1-p) + 4*Math.pow(1-p,4)*p; }
+  Plotly.newPlot('plot_ex4', [
+    {x:res4.means.map((v,i)=>i+1), y:res4.means, mode:'lines', name:'posterior mean'},
+    {x:res4.means.map((v,i)=>i+1), y:res4.means.map(p=>pEndsIn5(p)), mode:'lines', name:'plug-in P(end in 5)'}
+  ], {title:'Ex4) Per-game p & P(end in 5)', xaxis:{title:'games'}, yaxis:{title:'value'}});
+  Plotly.newPlot('plot_ex4_kl', [{x:res4.kl.map((v,i)=>i+1), y:res4.kl, type:'scatter'}], {title:'Ex4 KL', xaxis:{title:'games'}, yaxis:{title:'KL'}});
+
+  // Ex5: Gamma tail; Bayesian update for rate beta with Gamma prior (shape, rate)
+  const alpha_true = parseFloat(document.getElementById('ex5_alpha').value) || 2;
+  const beta_true = parseFloat(document.getElementById('ex5_beta').value) || 4;
+  const prior_shape = parseFloat(document.getElementById('ex5_prior_shape').value) || 2;
+  const prior_rate = parseFloat(document.getElementById('ex5_prior_rate').value) || 1;
+  const x_obs = parseFloat(document.getElementById('ex5_x').value) || 20;
+  // single observation x_obs. Posterior for beta (rate) is Gamma(prior_shape + alpha, prior_rate + x_obs) (because conjugacy with known alpha)
+  const post_shape = prior_shape + alpha_true;
+  const post_rate = prior_rate + x_obs;
+  const beta_mean = post_shape / post_rate;
+  // compute survival for Gamma(alpha, beta) where beta is rate: P(X>=x) = ??? use jStat.gamma.cdf with scale=1/beta
+  function gammaSurvival(alpha, beta, x) {
+    const scale = 1.0/beta;
+    return 1 - jStat.gamma.cdf(x, alpha, scale);
+  }
+  const tail_true = gammaSurvival(alpha_true, beta_true, x_obs);
+  const tail_user = gammaSurvival(alpha_true, prior_rate, x_obs); // approximate: user assumed beta = prior_rate? (example)
+  const tail_plug = gammaSurvival(alpha_true, beta_mean, x_obs);
+  // We can approximate posterior predictive P(X>=x) by Monte Carlo: sample many beta from Gamma(post_shape, scale=1/post_rate), average survival
+  const nb = 4000;
+  let sumTail=0;
+  for (let i=0;i<nb;i++){
+    const bsample = jStat.gamma.sample(post_shape, 1/post_rate);
+    sumTail += gammaSurvival(alpha_true, bsample, x_obs);
+  }
+  const tail_integrated = sumTail/nb;
+  const ex5trace = [
+    {x:[0,1], y:[tail_true, tail_true], mode:'lines', name:'True P(X>=x)'},
+    {x:[0,1], y:[tail_plug, tail_plug], mode:'lines', name:'Plug-in with post mean'},
+    {x:[0,1], y:[tail_integrated, tail_integrated], mode:'lines', name:'Posterior predictive (MC)'}
+  ];
+  Plotly.newPlot('plot_ex5', ex5trace, {title:`Ex5) P(X >= ${x_obs}) comparison (alpha=${alpha_true})`, yaxis:{range:[0,Math.max(tail_true,tail_plug,tail_integrated)*1.3]}});
+
+  // done
+  console.log("Run completed");
+}
+
+document.getElementById('btnRun').addEventListener('click', runAll);
+
+// run once on load
+runAll();
+</script>
+</body>
+</html>
