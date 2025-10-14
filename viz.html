@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -7,76 +7,142 @@
   <script src="https://cdn.plot.ly/plotly-2.34.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.4/jstat.min.js"></script>
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial; margin: 18px; background:#f7f7fb; color:#111; }
-    h1 { margin-bottom: 6px; }
-    .row { display:flex; gap:16px; align-items:flex-start; }
-    .col { flex:1; min-width:300px; }
-    .card { background:white; padding:12px; border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,0.06); }
-    label { display:block; font-size:13px; margin-top:8px; }
-    input[type="number"], input[type="range"], select { width:100%; }
-    #plots { display:grid; grid-template-columns: 1fr; gap:12px; margin-top:12px; }
-    .controls { margin-bottom:12px; }
-    .small { font-size:12px; color:#444; }
-    button { margin-top:8px; padding:8px 12px; border-radius:6px; border:1px solid #ddd; background:white; cursor:pointer; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial; margin: 0; background: #f4f4f4; color: #333; }
+    h1 { margin: 12px 18px 6px; }
+    .container { display: flex; }
+    .main-content { flex: 1; padding: 18px; }
+    .sidebar { 
+      width: 320px; 
+      background: white; 
+      padding: 12px; 
+      box-shadow: -2px 0 6px rgba(0,0,0,0.1); 
+      transition: transform 0.3s ease; 
+      position: fixed; 
+      right: 0; 
+      top: 0; 
+      height: 100%; 
+      overflow-y: auto; 
+      z-index: 1000; 
+    }
+    .sidebar.hidden { transform: translateX(100%); }
+    .sidebar-content { padding-bottom: 40px; } /* Added bottom padding */
+    .sidebar-toggle { 
+      position: fixed; 
+      right: 0; 
+      top: 10px; 
+      background: #007bff; 
+      color: white; 
+      border: none; 
+      padding: 8px; 
+      cursor: pointer; 
+      border-radius: 6px 0 0 6px; 
+      z-index: 1001; 
+    }
+    .row { display: flex; gap: 16px; align-items: flex-start; }
+    .col { flex: 1; min-width: 300px; }
+    .card { background: white; padding: 12px; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+    label { display: block; font-size: 13px; margin-top: 8px; }
+    input[type="number"], input[type="range"], select { width: 100%; box-sizing: border-box; }
+    #plots { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
+    .controls { margin-bottom: 12px; }
+    .small { font-size: 12px; color: #444; }
+    button { margin-top: 8px; padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: pointer; }
+    #btnRun { 
+      background: #007bff; 
+      color: white; 
+      border: none; 
+      font-weight: bold; 
+    } /* Styled Run button */
+    #btnRun:hover { background: #0056b3; } /* Hover effect */
+    select[multiple] { height: 100px; }
+    .plot-card.hidden { display: none; }
+    .plot-card { width: 100%; height: 400px; }
   </style>
 </head>
 <body>
-  <h1>Bayesian Update - Interactive Demo</h1>
-  <div class="small">Click "Run" after setting prior. All calculations are done within browser.</div>
+  <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+  <div class="container">
+    <div class="main-content">
+      <header>
+        <h1>Bayesian Update - Interactive Demo</h1>
+      </header>
+      <div class="small">Click "Run" in the sidebar to update plots. All calculations are done within browser.</div>
 
-  <div class="row" style="margin-top:12px;">
-    <div class="col card">
-      <h3>Common Settings</h3>
-      <div class="controls">
-        <label>Random Seed (integer): <input id="seed" type="number" value="42" /></label>
-        <label>Trials(sample): <input id="nTrials" type="number" value="300" /></label>
+      <div class="row" style="margin-top:12px;">
+        <div class="col card">
+          <h3>Description</h3>
+          <p class="small">This Demo shows a progress in real-time :</p>
+          <ul class="small">
+            <li>A progress of posterior mean converges into the true value</li>
+            <li>95% HDI (sampling based)</li>
+            <li>Posterior predictive (sampling) distribution histogram</li>
+            <li>Assess convergence speed by checking KL divergence(true || posterior-mean)</li>
+          </ul>
+          <p class="small"> Let's see how the prior belief converges along the updates.<br>
+            Ex1 - You have a die of six faces. You have a prior belief that 1 comes out 50%, rest 10% each. If the die is actually fair(1/6 each), how many trials we need to see the convergnece? <br>
+            Ex2 - There is a bus coming every 30 minutes. Your experience tells that you normally wait under 5 minutes 4 times out of 10.<br>
+            Ex3 - A weekly lottery has winning rate of 0.1%. If you buy one lottery every week, what would be the probability of winning at the 7th week for the first time? <br>
+            Ex4 - Two players, A and B, are playing game; A has a 70% chance of winning against B. You believe that it is not 70%, but 30%. Then what would be the posterior probability of the match ends at 5th game? <br>
+            Ex5 - Current quality assurance system takes 20 months to see the first defective product. Your prior belief follows gamma distribution of alpha=1, beta=6. What would be the convergence look like, if the actual prodcution quality follows gamma distribution of alpha=2, beta=4? <br>
+          </p>
+        </div>
+      </div>
+
+      <div id="plots">
+        <div id="plot_ex1" class="card plot-card"></div>
+        <div id="plot_ex1_kl" class="card plot-card"></div>
+        <div id="plot_ex2" class="card plot-card"></div>
+        <div id="plot_ex2_kl" class="card plot-card"></div>
+        <div id="plot_ex3" class="card plot-card"></div>
+        <div id="plot_ex3_kl" class="card plot-card"></div>
+        <div id="plot_ex4" class="card plot-card"></div>
+        <div id="plot_ex4_kl" class="card plot-card"></div>
+        <div id="plot_ex5" class="card plot-card"></div>
+      </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-content">
+        <h3>Settings</h3>
+        <div class="controls">
+          <label>Select Examples to Display (shift+click):</label>
+          <select id="exampleSelect" multiple>
+            <option value="ex1" selected>Ex1: Dice</option>
+            <option value="ex2" selected>Ex2: Bus wait</option>
+            <option value="ex3" selected>Ex3: Lottery</option>
+            <option value="ex4" selected>Ex4: Best-of-7</option>
+            <option value="ex5" selected>Ex5: Gamma tail</option>
+          </select>
+        </div>
+        <div class="controls">
+          <h4>Common Settings</h4>
+          <label>Random Seed (integer): <input id="seed" type="number" value="42" /></label>
+          <label>Trials (sample): <input id="nTrials" type="number" value="300" /></label>
+        </div>
+
+        <h4>Ex1: Dice (Dirichlet → categorical)</h4>
+        <div class="controls">
+          <label>prior for face1 (prob mass): <input id="ex1_p1" type="number" step="0.01" value="0.5" /></label>
+          <label>prior for other faces (each): <input id="ex1_pother" type="number" step="0.01" value="0.1" /></label>
+          <label>pseudo-count strength m: <input id="ex1_m" type="number" step="1" value="30" /></label>
+        </div>
+
+        <h4>Ex2/3/4: Bernoulli-family (Beta prior)</h4>
+        <div class="controls">
+          <label>Beta prior a (successes): <input id="beta_a" type="number" step="1" value="4" /></label>
+          <label>Beta prior b (failures): <input id="beta_b" type="number" step="1" value="6" /></label>
+        </div>
+
+        <h4>Ex5: Gamma tail (rate-parameterization)</h4>
+        <div class="controls">
+          <label>True distribution (α, β): <input id="ex5_alpha" type="number" step="0.1" value="2" /> , <input id="ex5_beta" type="number" step="0.1" value="4" /></label>
+          <label>User's prior for beta ~ Gamma(shape, rate): <input id="ex5_prior_shape" type="number" step="0.1" value="2" /> , <input id="ex5_prior_rate" type="number" step="0.1" value="1" /></label>
+          <label>Observation x (first failure): <input id="ex5_x" type="number" step="1" value="20" /></label>
+        </div>
+
         <button id="btnRun">Run all examples</button>
       </div>
-
-      <h3>Ex1: Dice (Dirichlet → categorical)</h3>
-      <div class="controls">
-        <label>prior for face1 (prob mass): <input id="ex1_p1" type="number" step="0.01" value="0.5" /></label>
-        <label>prior for other faces (each): <input id="ex1_pother" type="number" step="0.01" value="0.1" /></label>
-        <label>pseudo-count strength m: <input id="ex1_m" type="number" step="1" value="30" /></label>
-      </div>
-
-      <h3>Ex2/3/4: Bernoulli-family (Beta prior)</h3>
-      <div class="controls">
-        <label>Beta prior a (successes): <input id="beta_a" type="number" step="1" value="4" /></label>
-        <label>Beta prior b (failures): <input id="beta_b" type="number" step="1" value="6" /></label>
-      </div>
-
-      <h3>Ex5: Gamma tail (rate-parameterization)</h3>
-      <div class="controls">
-        <label>True distribution (α, β): <input id="ex5_alpha" type="number" step="0.1" value="2" /> , <input id="ex5_beta" type="number" step="0.1" value="4" /></label>
-        <label>User's prior for beta ~ Gamma(shape, rate): <input id="ex5_prior_shape" type="number" step="0.1" value="2" /> , <input id="ex5_prior_rate" type="number" step="0.1" value="1" /></label>
-        <label>Observation x (first failure): <input id="ex5_x" type="number" step="1" value="20" /></label>
-      </div>
     </div>
-
-    <div class="col card">
-      <h3>설명</h3>
-      <p class="small">This Demo shows a progress in real-time :</p>
-      <ul class="small">
-        <li>A progress of posterior mean converges into the true value</li>
-        <li>95% HDI (sampling based)</li>
-        <li>Posterior predictive (sampling) distribution histogram</li>
-        <li>Assess convergence speed by checking KL divergence(true || posterior-mean)</li>
-      </ul>
-      <p class="small"> :D .</p>
-    </div>
-  </div>
-
-  <div id="plots">
-    <div id="plot_ex1" class="card"></div>
-    <div id="plot_ex1_kl" class="card"></div>
-    <div id="plot_ex2" class="card"></div>
-    <div id="plot_ex2_kl" class="card"></div>
-    <div id="plot_ex3" class="card"></div>
-    <div id="plot_ex3_kl" class="card"></div>
-    <div id="plot_ex4" class="card"></div>
-    <div id="plot_ex4_kl" class="card"></div>
-    <div id="plot_ex5" class="card"></div>
   </div>
 
 <script>
@@ -117,7 +183,6 @@ function dirichletUpdate(true_probs, alpha0, n, rng) {
   const means = [];
   const kl = [];
   for (let t=0;t<n;t++){
-    // sample category
     const r = rng();
     let c = 0; let cum = true_probs[0];
     while (r>cum && c<k-1){ c++; cum += true_probs[c]; }
@@ -125,7 +190,6 @@ function dirichletUpdate(true_probs, alpha0, n, rng) {
     const total = alpha.reduce((a,b)=>a+b,0);
     const meanVec = alpha.map(v=>v/total);
     means.push(meanVec);
-    // KL between true and meanVec
     let K=0;
     for (let i=0;i<k;i++){
       if (true_probs[i]>0) K += true_probs[i]*Math.log(true_probs[i]/Math.max(meanVec[i],1e-12));
@@ -145,7 +209,6 @@ function betaUpdate(p_true, a0, b0, n, rng) {
     a += x; b += 1-x;
     const mean = a / (a + b);
     means.push(mean);
-    // sample from Beta(a,b) using jStat
     const samples = [];
     for (let i=0;i<5000;i++){
       samples.push(jStat.beta.sample(a,b));
@@ -157,97 +220,137 @@ function betaUpdate(p_true, a0, b0, n, rng) {
   return {means, hdi_lo, hdi_hi, kl, final_a: a, final_b: b};
 }
 
+/* Resize plots to fit main content area */
+function resizePlots() {
+  const plotCards = document.querySelectorAll('.plot-card:not(.hidden)');
+  plotCards.forEach(card => {
+    const plotId = card.id;
+    const plot = Plotly.d3.select(`#${plotId}`).node();
+    if (plot && Plotly.Plots) {
+      Plotly.relayout(plotId, {
+        width: card.offsetWidth,
+        height: card.offsetHeight
+      });
+    }
+  });
+}
+
+/* Toggle sidebar and resize plots */
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('hidden');
+  setTimeout(resizePlots, 350); // Wait for sidebar transition to complete
+}
+
+/* Update visible plots based on selected examples */
+function updateVisiblePlots() {
+  const select = document.getElementById('exampleSelect');
+  const selected = Array.from(select.selectedOptions).map(opt => opt.value);
+  const plotCards = document.querySelectorAll('.plot-card');
+  plotCards.forEach(card => {
+    const exId = card.id.split('_')[1]; // e.g., plot_ex1 -> ex1
+    card.classList.toggle('hidden', !selected.includes(exId));
+  });
+  setTimeout(resizePlots, 100); // Resize after visibility changes
+}
+
 /* main runner */
 function runAll() {
   const seed = parseInt(document.getElementById('seed').value) || 42;
   const rng = LCG(seed);
   const nTrials = parseInt(document.getElementById('nTrials').value) || 300;
 
-  // Ex1 params
-  const p1 = parseFloat(document.getElementById('ex1_p1').value) || 0.5;
-  const pOther = parseFloat(document.getElementById('ex1_pother').value) || 0.1;
-  const m = parseFloat(document.getElementById('ex1_m').value) || 30;
-  const true_die = Array(6).fill(1/6);
-  const prior_probs = [p1].concat(Array(5).fill(pOther));
-  const alpha0 = prior_probs.map(p=>p*m);
+  const selectedExamples = Array.from(document.getElementById('exampleSelect').selectedOptions).map(opt => opt.value);
 
-  const res1 = dirichletUpdate(true_die, alpha0, nTrials, rng);
-  // prepare traces: one trace per face
-  const faces = Array.from({length:6},(_,i)=>({x: Array.from({length:res1.means.length},(_,t)=>t+1), y: res1.means.map(v=>v[i]), name:`Face ${i+1}`, mode:'lines'}));
-  Plotly.newPlot('plot_ex1', faces, {title:'Ex1) Dirichlet posterior means per face', xaxis:{title:'rolls'}, yaxis:{range:[0,1]}});
+  if (selectedExamples.includes('ex1')) {
+    const p1 = parseFloat(document.getElementById('ex1_p1').value) || 0.5;
+    const pOther = parseFloat(document.getElementById('ex1_pother').value) || 0.1;
+    const m = parseFloat(document.getElementById('ex1_m').value) || 30;
+    const true_die = Array(6).fill(1/6);
+    const prior_probs = [p1].concat(Array(5).fill(pOther));
+    const alpha0 = prior_probs.map(p=>p*m);
+    const res1 = dirichletUpdate(true_die, alpha0, nTrials, rng);
+    const faces = Array.from({length:6},(_,i)=>({x: Array.from({length:res1.means.length},(_,t)=>t+1), y: res1.means.map(v=>v[i]), name:`Face ${i+1}`, mode:'lines'}));
+    Plotly.newPlot('plot_ex1', faces, {title:'Ex1) Dirichlet posterior means per face', xaxis:{title:'rolls'}, yaxis:{range:[0,1]}}, {responsive: true});
+    Plotly.newPlot('plot_ex1_kl', [{x:res1.kl.map((v,i)=>i+1), y:res1.kl, type:'scatter'}], {title:'Ex1 KL(true || posterior-mean)', xaxis:{title:'rolls'}, yaxis:{title:'KL (nats)'}}, {responsive: true});
+  }
 
-  Plotly.newPlot('plot_ex1_kl', [{x:res1.kl.map((v,i)=>i+1), y:res1.kl, type:'scatter'}], {title:'Ex1 KL(true || posterior-mean)', xaxis:{title:'rolls'}, yaxis:{title:'KL (nats)'}});
-
-  // Ex2: Bus wait <=5min. True p = 5/30.
-  const p_true_bus = 5/30;
   const a0 = parseFloat(document.getElementById('beta_a').value) || 4;
   const b0 = parseFloat(document.getElementById('beta_b').value) || 6;
-  const res2 = betaUpdate(p_true_bus,a0,b0,nTrials, rng);
-  Plotly.newPlot('plot_ex2', [
-    {x: res2.means.map((v,i)=>i+1), y: res2.means, mode:'lines', name:'posterior mean'},
-    {x: res2.hdi_lo.map((v,i)=>i+1), y: res2.hdi_lo, mode:'lines', line:{width:0}, name:'HDI_lo', showlegend:false},
-    {x: res2.hdi_hi.map((v,i)=>i+1), y: res2.hdi_hi, mode:'lines', fill:'tonexty', name:'HDI_hi', fillcolor:'rgba(0,100,200,0.15)'}
-  ], {title:'Ex2) Bus wait ≤5min: posterior mean & HDI', xaxis:{title:'trials'}, yaxis:{title:'p'}});
-  Plotly.newPlot('plot_ex2_kl', [{x:res2.kl.map((v,i)=>i+1), y:res2.kl, type:'scatter'}], {title:'Ex2 KL', xaxis:{title:'trials'}, yaxis:{title:'KL'}});
 
-  // Ex3: Lottery p_true=0.001
-  const p_true_lotto = 0.001;
-  const res3 = betaUpdate(p_true_lotto,a0,b0,nTrials, rng);
-  Plotly.newPlot('plot_ex3', [{x:res3.means.map((v,i)=>i+1), y:res3.means, mode:'lines'}], {title:'Ex3) Lottery posterior mean', xaxis:{title:'weeks'}, yaxis:{title:'p'}});
-  Plotly.newPlot('plot_ex3_kl', [{x:res3.kl.map((v,i)=>i+1), y:res3.kl, type:'scatter'}], {title:'Ex3 KL', xaxis:{title:'weeks'}, yaxis:{title:'KL'}});
-
-  // Ex4: Best-of-7: p_true=0.7
-  const p_true_A = 0.7;
-  const res4 = betaUpdate(p_true_A, a0, b0, nTrials, rng);
-  // plugin: p_series_end_in_5
-  function pEndsIn5(p) { return 4*Math.pow(p,4)*(1-p) + 4*Math.pow(1-p,4)*p; }
-  Plotly.newPlot('plot_ex4', [
-    {x:res4.means.map((v,i)=>i+1), y:res4.means, mode:'lines', name:'posterior mean'},
-    {x:res4.means.map((v,i)=>i+1), y:res4.means.map(p=>pEndsIn5(p)), mode:'lines', name:'plug-in P(end in 5)'}
-  ], {title:'Ex4) Per-game p & P(end in 5)', xaxis:{title:'games'}, yaxis:{title:'value'}});
-  Plotly.newPlot('plot_ex4_kl', [{x:res4.kl.map((v,i)=>i+1), y:res4.kl, type:'scatter'}], {title:'Ex4 KL', xaxis:{title:'games'}, yaxis:{title:'KL'}});
-
-  // Ex5: Gamma tail; Bayesian update for rate beta with Gamma prior (shape, rate)
-  const alpha_true = parseFloat(document.getElementById('ex5_alpha').value) || 2;
-  const beta_true = parseFloat(document.getElementById('ex5_beta').value) || 4;
-  const prior_shape = parseFloat(document.getElementById('ex5_prior_shape').value) || 2;
-  const prior_rate = parseFloat(document.getElementById('ex5_prior_rate').value) || 1;
-  const x_obs = parseFloat(document.getElementById('ex5_x').value) || 20;
-  // single observation x_obs. Posterior for beta (rate) is Gamma(prior_shape + alpha, prior_rate + x_obs) (because conjugacy with known alpha)
-  const post_shape = prior_shape + alpha_true;
-  const post_rate = prior_rate + x_obs;
-  const beta_mean = post_shape / post_rate;
-  // compute survival for Gamma(alpha, beta) where beta is rate: P(X>=x) = ??? use jStat.gamma.cdf with scale=1/beta
-  function gammaSurvival(alpha, beta, x) {
-    const scale = 1.0/beta;
-    return 1 - jStat.gamma.cdf(x, alpha, scale);
+  if (selectedExamples.includes('ex2')) {
+    const p_true_bus = 5/30;
+    const res2 = betaUpdate(p_true_bus,a0,b0,nTrials, rng);
+    Plotly.newPlot('plot_ex2', [
+      {x: res2.means.map((v,i)=>i+1), y: res2.means, mode:'lines', name:'posterior mean'},
+      {x: res2.hdi_lo.map((v,i)=>i+1), y: res2.hdi_lo, mode:'lines', line:{width:0}, name:'HDI_lo', showlegend:false},
+      {x: res2.hdi_hi.map((v,i)=>i+1), y: res2.hdi_hi, mode:'lines', fill:'tonexty', name:'HDI_hi', fillcolor:'rgba(0,100,200,0.15)'}
+    ], {title:'Ex2) Bus wait ≤5min: posterior mean & HDI', xaxis:{title:'trials'}, yaxis:{title:'p'}}, {responsive: true});
+    Plotly.newPlot('plot_ex2_kl', [{x:res2.kl.map((v,i)=>i+1), y:res2.kl, type:'scatter'}], {title:'Ex2 KL', xaxis:{title:'trials'}, yaxis:{title:'KL'}}, {responsive: true});
   }
-  const tail_true = gammaSurvival(alpha_true, beta_true, x_obs);
-  const tail_user = gammaSurvival(alpha_true, prior_rate, x_obs); // approximate: user assumed beta = prior_rate? (example)
-  const tail_plug = gammaSurvival(alpha_true, beta_mean, x_obs);
-  // We can approximate posterior predictive P(X>=x) by Monte Carlo: sample many beta from Gamma(post_shape, scale=1/post_rate), average survival
-  const nb = 4000;
-  let sumTail=0;
-  for (let i=0;i<nb;i++){
-    const bsample = jStat.gamma.sample(post_shape, 1/post_rate);
-    sumTail += gammaSurvival(alpha_true, bsample, x_obs);
-  }
-  const tail_integrated = sumTail/nb;
-  const ex5trace = [
-    {x:[0,1], y:[tail_true, tail_true], mode:'lines', name:'True P(X>=x)'},
-    {x:[0,1], y:[tail_plug, tail_plug], mode:'lines', name:'Plug-in with post mean'},
-    {x:[0,1], y:[tail_integrated, tail_integrated], mode:'lines', name:'Posterior predictive (MC)'}
-  ];
-  Plotly.newPlot('plot_ex5', ex5trace, {title:`Ex5) P(X >= ${x_obs}) comparison (alpha=${alpha_true})`, yaxis:{range:[0,Math.max(tail_true,tail_plug,tail_integrated)*1.3]}});
 
-  // done
+  if (selectedExamples.includes('ex3')) {
+    const p_true_lotto = 0.001;
+    const res3 = betaUpdate(p_true_lotto,a0,b0,nTrials, rng);
+    Plotly.newPlot('plot_ex3', [{x:res3.means.map((v,i)=>i+1), y:res3.means, mode:'lines'}], {title:'Ex3) Lottery posterior mean', xaxis:{title:'weeks'}, yaxis:{title:'p'}}, {responsive: true});
+    Plotly.newPlot('plot_ex3_kl', [{x:res3.kl.map((v,i)=>i+1), y:res3.kl, type:'scatter'}], {title:'Ex3 KL', xaxis:{title:'weeks'}, yaxis:{title:'KL'}}, {responsive: true});
+  }
+
+  if (selectedExamples.includes('ex4')) {
+    const p_true_A = 0.7;
+    const res4 = betaUpdate(p_true_A, a0, b0, nTrials, rng);
+    function pEndsIn5(p) { return 4*Math.pow(p,4)*(1-p) + 4*Math.pow(1-p,4)*p; }
+    Plotly.newPlot('plot_ex4', [
+      {x:res4.means.map((v,i)=>i+1), y:res4.means, mode:'lines', name:'posterior mean'},
+      {x:res4.means.map((v,i)=>i+1), y:res4.means.map(p=>pEndsIn5(p)), mode:'lines', name:'plug-in P(end in 5)'}
+    ], {title:'Ex4) Per-game p & P(end in 5)', xaxis:{title:'games'}, yaxis:{title:'value'}}, {responsive: true});
+    Plotly.newPlot('plot_ex4_kl', [{x:res4.kl.map((v,i)=>i+1), y:res4.kl, type:'scatter'}], {title:'Ex4 KL', xaxis:{title:'games'}, yaxis:{title:'KL'}}, {responsive: true});
+  }
+
+  if (selectedExamples.includes('ex5')) {
+    const alpha_true = parseFloat(document.getElementById('ex5_alpha').value) || 2;
+    const beta_true = parseFloat(document.getElementById('ex5_beta').value) || 4;
+    const prior_shape = parseFloat(document.getElementById('ex5_prior_shape').value) || 2;
+    const prior_rate = parseFloat(document.getElementById('ex5_prior_rate').value) || 1;
+    const x_obs = parseFloat(document.getElementById('ex5_x').value) || 20;
+    const post_shape = prior_shape + alpha_true;
+    const post_rate = prior_rate + x_obs;
+    const beta_mean = post_shape / post_rate;
+    function gammaSurvival(alpha, beta, x) {
+      const scale = 1.0/beta;
+      return 1 - jStat.gamma.cdf(x, alpha, scale);
+    }
+    const tail_true = gammaSurvival(alpha_true, beta_true, x_obs);
+    const tail_user = gammaSurvival(alpha_true, prior_rate, x_obs);
+    const tail_plug = gammaSurvival(alpha_true, beta_mean, x_obs);
+    const nb = 4000;
+    let sumTail=0;
+    for (let i=0;i<nb;i++){
+      const bsample = jStat.gamma.sample(post_shape, 1/post_rate);
+      sumTail += gammaSurvival(alpha_true, bsample, x_obs);
+    }
+    const tail_integrated = sumTail/nb;
+    const ex5trace = [
+      {x:[0,1], y:[tail_true, tail_true], mode:'lines', name:'True P(X>=x)'},
+      {x:[0,1], y:[tail_plug, tail_plug], mode:'lines', name:'Plug-in with post mean'},
+      {x:[0,1], y:[tail_integrated, tail_integrated], mode:'lines', name:'Posterior predictive (MC)'}
+    ];
+    Plotly.newPlot('plot_ex5', ex5trace, {title:`Ex5) P(X >= ${x_obs}) comparison (alpha=${alpha_true})`, yaxis:{range:[0,Math.max(tail_true,tail_plug,tail_integrated)*1.3]}}, {responsive: true});
+  }
+
+  setTimeout(resizePlots, 100); // Resize plots after rendering
   console.log("Run completed");
 }
 
 document.getElementById('btnRun').addEventListener('click', runAll);
+document.getElementById('exampleSelect').addEventListener('change', updateVisiblePlots);
+
+// Add window resize listener to handle dynamic resizing
+window.addEventListener('resize', resizePlots);
 
 // run once on load
 runAll();
+updateVisiblePlots();
 </script>
 </body>
 </html>
