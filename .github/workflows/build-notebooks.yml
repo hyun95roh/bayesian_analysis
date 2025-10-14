@@ -34,15 +34,15 @@ jobs:
         run: |
           mkdir -p notebooks
           python - <<'PY'
-import pathlib, subprocess, sys
-nb_list = [str(p) for p in pathlib.Path(".").rglob("*.ipynb") if ".ipynb_checkpoints" not in str(p)]
-if not nb_list:
-    print("No notebooks found", file=sys.stderr); sys.exit(0)
-for nb in nb_list:
-    print("Executing & exporting:", nb, flush=True)
-    subprocess.run(["jupyter","nbconvert",nb,"--to","notebook","--execute","--inplace","--ExecutePreprocessor.timeout=1200"], check=True)
-    subprocess.run(["jupyter","nbconvert",nb,"--to","html","--template","lab","--output-dir","notebooks"], check=True)
-PY
+          import pathlib, subprocess, sys
+          nb_list = [str(p) for p in pathlib.Path(".").rglob("*.ipynb") if ".ipynb_checkpoints" not in str(p)]
+          if not nb_list:
+              print("No notebooks found", file=sys.stderr); sys.exit(0)
+          for nb in nb_list:
+              print("Executing & exporting:", nb, flush=True)
+              subprocess.run(["jupyter","nbconvert",nb,"--to","notebook","--execute","--inplace","--ExecutePreprocessor.timeout=1200"], check=True)
+              subprocess.run(["jupyter","nbconvert",nb,"--to","html","--template","lab","--output-dir","notebooks"], check=True)
+          PY
 
       - name: Inject cache-busting SHAs into scenario pages
         run: |
